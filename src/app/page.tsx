@@ -1,12 +1,27 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import ReactAlertSample from '@/components/ReactAlertSample';
 import { useWalletContext } from '@/context/wallet';
 import { useGlobalState } from '@/store';
 import { useHookstate } from '@hookstate/core';
-import { ConnectKitButton } from 'connectkit';
+import { ConnectKitButton, supportedConnectors } from 'connectkit';
+
+//hax mode
+supportedConnectors.push({
+  id: 'web3auth',
+  name: 'Web3Auth',
+  logos: {
+    default: (
+      <img src="https://web3auth.io/images/w3a-L-Favicon-1.svg" alt="" />
+    ),
+  },
+  extensionIsInstalled: () => true,
+});
+
 import { BigNumber } from 'ethers';
 import { useEffect } from 'react';
+import { useAccount, useConnect } from 'wagmi';
 
 export default function Home() {
   const gState = useGlobalState();
@@ -63,10 +78,14 @@ export default function Home() {
     }
   }, [isDisconnected]);
 
+  const { connector, isConnected } = useAccount();
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect();
+
   return (
     <main className="bg-gray-200">
-      <div className="min-h-screen flex gap-4 flex-col justify-center items-center">
-        <h1 className="text-red-500 font-bold text-4xl">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+        <h1 className="text-4xl font-bold text-red-500">
           Next-Tailwind Starter Template
         </h1>
 
@@ -81,7 +100,7 @@ export default function Home() {
                 return (
                   <button
                     onClick={show}
-                    className="py-2 px-6 bg-green-500 text-white rounded-lg hover:bg-green-600 active:scale-95"
+                    className="rounded-lg bg-green-500 px-6 py-2 text-white hover:bg-green-600 active:scale-95"
                   >
                     {isConnected ? truncatedAddress : 'Custom Connect'}
                   </button>
@@ -91,29 +110,26 @@ export default function Home() {
             {gState['verify'].value && (
               <button
                 onClick={() => Disconnect()}
-                className="py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600 active:scale-95"
+                className="rounded-lg bg-red-500 px-6 py-2 text-white hover:bg-red-600 active:scale-95"
               >
                 Disconnect
               </button>
             )}
           </div>
-
           <div className="text-center">
             <div>Status:</div>
             <div className="text-red-500">{status}</div>
             {address && <div>{address}</div>}
           </div>
-
           <div className="flex flex-col items-center">
             <button
               onClick={getBusdBal}
-              className="py-2 px-6 bg-green-500 text-white rounded-lg hover:bg-green-600 active:scale-95"
+              className="rounded-lg bg-green-500 px-6 py-2 text-white hover:bg-green-600 active:scale-95"
             >
               GET BUSD BALANCE
             </button>
             <div>{`BUSD Balance: ${balance.value.toLocaleString()}`}</div>
           </div>
-
           {gState['verify'].value && (
             <div className="space-y-8 pt-6">
               <div className="flex flex-col items-center gap-2">
@@ -133,7 +149,7 @@ export default function Home() {
                 />
                 <button
                   onClick={sendBusd}
-                  className="py-2 px-6 bg-green-500 text-white rounded-lg hover:bg-green-600 active:scale-95"
+                  className="rounded-lg bg-green-500 px-6 py-2 text-white hover:bg-green-600 active:scale-95"
                 >
                   SEND
                 </button>

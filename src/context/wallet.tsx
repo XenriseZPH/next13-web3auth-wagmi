@@ -19,6 +19,7 @@ import CONFIG from '@/config';
 import { useGlobalState } from '@/store';
 import axios, { BLOCKCHAIN } from '@/api';
 import { ConnectKitProvider } from 'connectkit';
+import Web3AuthConnectorInstance from '@/utils/Web3AuthConnectorInstance';
 
 const { chains, provider, webSocketProvider } = configureChains(
   CONFIG.setting.supported_chains,
@@ -28,6 +29,7 @@ const { chains, provider, webSocketProvider } = configureChains(
 const client = createClient({
   autoConnect: false,
   connectors: [
+    Web3AuthConnectorInstance(chains),
     new InjectedConnector({ chains }),
     new MetaMaskConnector({
       chains,
