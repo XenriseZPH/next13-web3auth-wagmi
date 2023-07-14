@@ -6,13 +6,16 @@ import {
   UserRejectedRequestError,
 } from '@wagmi/core';
 import type { Chain } from '@wagmi/core/chains';
-import type {
-  IWeb3Auth,
-  SafeEventEmitterProvider,
-  WALLET_ADAPTER_TYPE,
+import {
+  ADAPTER_EVENTS,
+  CONNECTED_EVENT_DATA,
+  type IWeb3Auth,
+  type SafeEventEmitterProvider,
+  type WALLET_ADAPTER_TYPE,
 } from '@web3auth/base';
 import * as pkg from '@web3auth/base';
-import type { IWeb3AuthModal, ModalConfig } from '@web3auth/modal';
+import type { IWeb3AuthModal, ModalConfig, Web3Auth } from '@web3auth/modal';
+import { Web3AuthNoModal } from '@web3auth/no-modal';
 import type { OpenloginLoginParams } from '@web3auth/openlogin-adapter';
 import { TorusWalletConnectorPlugin } from '@web3auth/torus-wallet-connector-plugin';
 import { providers, Signer } from 'ethers';
@@ -64,6 +67,14 @@ export class Web3AuthConnector extends Connector<
     this.loginParams = options.loginParams || null;
     this.modalConfig = options.modalConfig || null;
     this.initialChainId = chains[0].id;
+    this.subscribeAuthEvents(this.web3AuthInstance);
+    this.addPlugin();
+  }
+
+  async addPlugin() {
+    await this.torusPlugin.initWithWeb3Auth(
+      this.web3AuthInstance as Web3AuthNoModal
+    );
   }
 
   async connect(): Promise<Required<ConnectorData>> {
@@ -224,5 +235,31 @@ export class Web3AuthConnector extends Connector<
 
   protected onDisconnect(): void {
     this.emit('disconnect');
+  }
+
+  subscribeAuthEvents(web3auth: IWeb3Auth) {
+    web3auth.on(
+      ADAPTER_EVENTS.CONNECTED,
+      async (data: CONNECTED_EVENT_DATA) => {
+        console.log('connected to wallet', data);
+        // web3auth.provider will be available here after user is connected
+        if (this.torusPlugin.torusWalletInstance.isInitialized) {
+          await this.torusPlugin.connect();
+          this.provider = this.torusPlugin.torusWalletInstance.ethereum as any;
+        }
+      }
+    );
+    web3auth.on(ADAPTER_EVENTS.CONNECTING, () => {
+      console.log('connecting');
+    });
+    web3auth.on(ADAPTER_EVENTS.DISCONNECTED, () => {
+      console.log('disconnected');
+    });
+    web3auth.on(ADAPTER_EVENTS.ERRORED, (error) => {
+      console.log('error', error);
+    });
+    web3auth.on(ADAPTER_EVENTS.ERRORED, (error) => {
+      console.log('error', error);
+    });
   }
 }
