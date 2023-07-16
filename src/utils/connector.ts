@@ -243,7 +243,9 @@ export class Web3AuthConnector extends Connector<
       async (data: CONNECTED_EVENT_DATA) => {
         console.log('connected to wallet', data);
         // web3auth.provider will be available here after user is connected
-        if (this.torusPlugin.torusWalletInstance.isInitialized) {
+        if (this.torusPlugin.torusWalletInstance.isInitialized && this.torusPlugin.SUPPORTED_ADAPTERS.includes(
+          this.web3AuthInstance.connectedAdapterName
+        )) {
           await this.torusPlugin.connect();
           this.provider = this.torusPlugin.torusWalletInstance.ethereum as any;
         }
