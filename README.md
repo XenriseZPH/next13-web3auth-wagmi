@@ -9,13 +9,13 @@
 Run the following command to bootstrap your next-app using this template:
 
 ```bash
-yarn create next-app [project-name] -e https://github.com/nelwincatalogo/next13-tailwind-with-wallet-connect
+yarn create next-app [project-name] -e https://github.com/XenriseZPH/next13-web3auth-wagmi
 ```
 
 OR
 
 ```bash
-npx create-next-app [project-name] -e https://github.com/nelwincatalogo/next13-tailwind-with-wallet-connect
+npx create-next-app [project-name] -e https://github.com/XenriseZPH/next13-web3auth-wagmi
 ```
 
 ## Summary
